@@ -7,11 +7,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 import sys
-from utilities.block_compare.record_creater import RecordReaderWrapper
-from utilities.block_compare.parse_factory import *
+from record_creater import RecordReaderWrapper
+from parse_factory import *
 
 
-def iterative_block_overlap(filename_1, filename_2, parse_callable):
+def iterative_block_overlap(filename_1: str, filename_2: str, parse_callable: callable, identity_keep_rule=None):
     """
     find overlap (identical equation)
     *** counts (other association should be implemented by ...) ***
@@ -25,6 +25,8 @@ def iterative_block_overlap(filename_1, filename_2, parse_callable):
           the second file name used for overlap query
     parse_callable: callable
           generate object from *** each line *** for those input files
+    identity_keep_rule: callable
+          the record keep rule for same associated identity
 
     Returns
     -------
@@ -39,44 +41,55 @@ def iterative_block_overlap(filename_1, filename_2, parse_callable):
                 compare_unit1, compare_unit2 = next(input1), next(input2)
                 while compare_unit1[0] != compare_unit2[0] and input1.has_next() and input2.has_next():
                     if compare_unit1[0] < compare_unit2[0]:
-                        while input1.has_next() and compare_unit1 < compare_unit2:
-                            compare_unit1 = next(input1)
+                        while input1.has_next() and compare_unit1[0] < compare_unit2[0]:
                             # write non-overlap record in input file1
-                            for single_record in compare_unit1:
-                                output.write(single_record.format() + "\n")
+                            for __, record in custom_dedup(compare_unit1, identity_keep_rule).items():
+                                output.write(record.format() + "\n")
+                            compare_unit1 = next(input1)
                     elif compare_unit1[0] > compare_unit2[0]:
-                        while input2.has_next() and compare_unit1 > compare_unit2:
-                            compare_unit2 = next(input2)
+                        while input2.has_next() and compare_unit1[0] > compare_unit2[0]:
                             # write non-overlap record in input file2
-                            for single_record in compare_unit2:
-                                output.write(single_record.format() + "\n")
+                            for __, record in custom_dedup(compare_unit2, identity_keep_rule).items():
+                                output.write(record.format() + "\n")
+                            compare_unit2 = next(input2)
                 else:
                     if compare_unit1[0] == compare_unit2[0]:
-                        same_position_info_set = {}
-                        for element1 in compare_unit1:
-                            median_allele_frac = float(element1.infos.split("AF_MID=")[1].split(";")[0])
-                            same_position_info_set[element1.context()] = median_allele_frac, element1.format()
-                        for element2 in compare_unit2:
-                            median_allele_frac = float(element2.infos.split("AF_MID=")[1].split(";")[0])
-                            element2_identity = element2.context()
-                            if element2_identity in same_position_info_set:
-                                overlap_counts += 1
-                                if median_allele_frac > same_position_info_set[element2_identity][0]:
-                                    same_position_info_set[element2_identity] = median_allele_frac, element2.format()
-                            else:
-                                same_position_info_set[element1.context] = median_allele_frac, element1.format()
-
-                            # write association result for same position overlap records
-                            for __, (__, out) in same_position_info_set.items():
-                                output.write(out + "\n")
+                        overlap_counts += 1
+                        for __, record in custom_dedup(compare_unit1 + compare_unit2, identity_keep_rule).items():
+                            output.write(record.format() + "\n")
+            # single input end of file
+            if input1.has_next():
+                while input1.has_next():
+                    for record in next(input1):
+                        output.write(record.format() + "\n")
+            elif input2.has_next():
+                while input2.has_next():
+                    for record in next(input2):
+                        output.write(record.format() + "\n")
 
             return overlap_counts
+
+
+def max_allele_freq_compare(record1: str, record2: str):
+    return record1.split("AF_MID=")[1].split(";") > record2.split("AF_MID=")[1].split(";")
+
+
+def custom_dedup(unit_list: list, dedup_rule: callable) -> dict:
+    uniq_index_dict = {}
+    for record in unit_list:
+        current_index = record.context()
+        if current_index in uniq_index_dict:
+            if dedup_rule(record.infos, uniq_index_dict[current_index].infos):
+                uniq_index_dict[current_index] = record
+        else:
+            uniq_index_dict[current_index] = record
+    return uniq_index_dict
 
 
 if __name__ == '__main__':
     ref_file1 = sys.argv[1]
     ref_file2 = sys.argv[2]
     vcf_parse_func = PositionBlockParseMachine().generate_parse_callable("vcf")
-    counts = iterative_block_overlap(ref_file1, ref_file2, vcf_parse_func)
-    print("Total overlap counts were {} in two input comparision files!".format(counts))
+    counts = iterative_block_overlap(ref_file1, ref_file2, vcf_parse_func, max_allele_freq_compare)
+    print("Total overlap counts for same position were {} in two input files!".format(counts))
 

@@ -8,8 +8,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from utilities.block_compare.input_format import *
-from utilities.block_compare.var_record import *
+from input_format import *
+from var_record import *
 
 
 class BlockParseFuncMachine(object):

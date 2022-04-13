@@ -31,7 +31,7 @@ class VarRecord(object):
         return self.ref + ":" + self.alt
 
     def format(self) -> str:
-        return self.__chrom_str() + str(self.pos) + "\t.\t" + self.ref + "\t" + self.alt + \
+        return self.__chrom_str() + "\t" + str(self.pos) + "\t.\t" + self.ref + "\t" + self.alt + \
                "\t.\t.\t" + self.infos
 
     @staticmethod
