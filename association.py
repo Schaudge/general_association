@@ -60,11 +60,11 @@ def iterative_block_overlap(filename_1: str, filename_2: str, parse_callable: ca
             # single input end of file
             if input1.has_next():
                 while input1.has_next():
-                    for record in next(input1):
+                    for __, record in custom_dedup(next(input1), identity_keep_rule).items():
                         output.write(record.format() + "\n")
             elif input2.has_next():
                 while input2.has_next():
-                    for record in next(input2):
+                    for __, record in custom_dedup(next(input1), identity_keep_rule).items():
                         output.write(record.format() + "\n")
 
             return overlap_counts
