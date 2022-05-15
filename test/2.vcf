@@ -1,0 +1,10 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##INFO=<ID=FREQUENCY,Number=1,Type=Float,Description="Fraction of samples exhibiting artifact">
+##INFO=<ID=AF_MID,Number=1,Type=Float,Description="median allele frequency by allele">
+##INFO=<ID=AF_Q3,Number=1,Type=Float,Description="quantile 0.75 allele frequency by allele">
+##INFO=<ID=BASEQ_MID,Number=1,Type=Float,Description="median base quality by allele">
+##INFO=<ID=BASEQ_Q3,Number=1,Type=Float,Description="quantile 0.75 base quality by allele">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	10615699	.	A	AGT	.	.	FREQUENCY=0.06;AF_MID=0.1511;AF_Q3=0.25;BASEQ_MID=10;BASEQ_Q3=20;
+1	10615699	.	A	T	.	.	FREQUENCY=0.21;AF_MID=0.1478;AF_Q3=0.34;BASEQ_MID=20;BASEQ_Q3=24;

@@ -1,0 +1,15 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##INFO=<ID=FREQUENCY,Number=1,Type=Float,Description="Fraction of samples exhibiting artifact">
+##INFO=<ID=AF_MID,Number=1,Type=Float,Description="median allele frequency by allele">
+##INFO=<ID=AF_Q3,Number=1,Type=Float,Description="quantile 0.75 allele frequency by allele">
+##INFO=<ID=BASEQ_MID,Number=1,Type=Float,Description="median base quality by allele">
+##INFO=<ID=BASEQ_Q3,Number=1,Type=Float,Description="quantile 0.75 base quality by allele">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	10615673	.	T	G	.	.	FREQUENCY=0.075;AF_MID=0.0882;AF_Q3=0.0889;BASEQ_MID=15.5;BASEQ_Q3=19.0;
+1	10615691	.	A	T	.	.	FREQUENCY=0.105;AF_MID=0.0645;AF_Q3=0.0726;BASEQ_MID=16.33;BASEQ_Q3=16.9;
+1	10615699	.	A	AGT	.	.	FREQUENCY=0.224;AF_MID=0.2273;AF_Q3=0.2997;BASEQ_MID=0.0;BASEQ_Q3=0.0;
+1	10615699	.	A	T	.	.	FREQUENCY=0.328;AF_MID=0.134;AF_Q3=0.1472;BASEQ_MID=22.465;BASEQ_Q3=25.1;
+1	10615699	.	A	AGT	.	.	FREQUENCY=0.06;AF_MID=0.1511;AF_Q3=0.224;BASEQ_MID=0.0;BASEQ_Q3=0.0;
+1	10615699	.	A	T	.	.	FREQUENCY=0.06;AF_MID=0.1478;AF_Q3=0.25;BASEQ_MID=23.5;BASEQ_Q3=24.075;
+1	10615727	.	T	A	.	.	FREQUENCY=0.0;AF_MID=0.0754;AF_Q3=0.089;BASEQ_MID=15.67;BASEQ_Q3=19.335;
