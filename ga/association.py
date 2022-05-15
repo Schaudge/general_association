@@ -7,8 +7,19 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from ga.record_creater import RecordReaderWrapper
-from ga.parse_factory import *
 from ga.output_factory import AssociatedRuleOutput
+from ga.parse_factory import *
+
+
+def custom_dedup_callable(unit_list: list, dedup_rule: callable) -> dict:
+    uniq_index_dict = {}
+    for record in unit_list:
+        current_index = record.context()  # ref:alt string
+        if current_index in uniq_index_dict:
+            uniq_index_dict[current_index] = dedup_rule(uniq_index_dict[current_index], record)
+        else:
+            uniq_index_dict[current_index] = record
+    return uniq_index_dict
 
 
 def iterative_overlap_block(filename_1: str, filename_2: str, parse_callable: callable,
@@ -34,7 +45,6 @@ def iterative_overlap_block(filename_1: str, filename_2: str, parse_callable: ca
     Returns
     -------
           overlap counts of two input files.
-
     """
     overlap_counts = 0
     with RecordReaderWrapper(filename_1, parse_callable) as input1, \
@@ -77,20 +87,26 @@ def iterative_overlap_block(filename_1: str, filename_2: str, parse_callable: ca
         return overlap_counts
 
 
-def max_allele_freq_compare(record1: str, record2: str):
-    return record1.split("AF_MID=")[1].split(";") > record2.split("AF_MID=")[1].split(";")
+# The following function need to be rewritten for (input) particular data,
+# And record1, record2 are parsed by the 'parse_callable' parameter in `iterative_overlap_block` function
+def max_allele_freq_compare(record1: VarRecord, record2: VarRecord) -> VarRecord:
+    if record1.infos.split("AF_MID=")[1].split(";") > record2.infos.split("AF_MID=")[1].split(";"):
+        return record1
+    else:
+        return record2
 
 
-def custom_dedup_callable(unit_list: list, dedup_rule: callable) -> dict:
-    uniq_index_dict = {}
-    for record in unit_list:
-        current_index = record.context()
-        if current_index in uniq_index_dict:
-            if dedup_rule(record.infos, uniq_index_dict[current_index].infos):
-                uniq_index_dict[current_index] = record
-        else:
-            uniq_index_dict[current_index] = record
-    return uniq_index_dict
+def add_info_field(record1: VarRecord, record2: VarRecord) -> VarRecord:
+    raw_record_dict = {}
+    for info_field in record1.infos.split(";"):
+        raw_k, raw_v = info_field.split("=")
+        raw_record_dict[raw_k] = raw_v
+    for supp in record2.infos.split(";"):
+        add_k, add_v = supp.split("=")
+        if add_k not in raw_record_dict:
+            raw_record_dict[add_k] = add_v
+    record1.infos = ";".join([_k + "=" + _v for _k, _v in raw_record_dict])
+    return record1
 
 
 def main():
@@ -98,8 +114,9 @@ def main():
     ref_file1 = argv[1]
     ref_file2 = argv[2]
     vcf_parse_func = PositionBlockParseMachine().generate_parse_callable("vcf")
+    record_keep_rule = add_info_field if "clinvar" in ref_file2 else max_allele_freq_compare
     ruled_based_output = AssociatedRuleOutput(argv[3:], all_to_one=False)
-    counts = iterative_overlap_block(ref_file1, ref_file2, vcf_parse_func, max_allele_freq_compare, ruled_based_output)
+    counts = iterative_overlap_block(ref_file1, ref_file2, vcf_parse_func, record_keep_rule, ruled_based_output)
     print("Total overlap counts for same position were {} in two input files!".format(counts))
 
 
