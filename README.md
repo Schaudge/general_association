@@ -29,6 +29,6 @@ ga <test/1.vcf> <test/2.vcf>
 [right_outer_output] keeps right non-associated records.
 
 ## Extend
-In all most cases, you need only add a record keep rule callable (e.g. `new_add_compare`) for two (associated) under-compared records in particular application. Then call the `iterative_overlap_block` function's `identity_keep_rule` parameter to `new_add_compare`.
+In all most cases, you need only add a record keep rule callable (e.g. `new_add_compare`) for two (associated) under-compared records in particular application. Then call the `iterative_overlap_block` function's `identity_keep_rule` parameter with `new_add_compare`.
 
 For some depth improvements, you would rewrite the `custom_dedup_callable` and `identity_keep_rule` simultaneously for adaptation.
