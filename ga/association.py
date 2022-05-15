@@ -71,17 +71,40 @@ def iterative_overlap_block(filename_1: str, filename_2: str, parse_callable: ca
                     overlap_counts += 1
                     for __, record in custom_dedup_callable(compare_unit1 + compare_unit2, identity_keep_rule).items():
                         rule_based_output.overlap_out.write(record.format() + "\n")
-
         # single input end of file
         if input1.has_next():
+            compare_unit1 = next(input1)
+            while compare_unit1[0] < compare_unit2[0] and input1.has_next():
+                if rule_based_output.left_out:
+                    for __, record in custom_dedup_callable(compare_unit1, identity_keep_rule).items():
+                        rule_based_output.left_out.write(record.format() + "\n")
+                compare_unit1 = next(input1)
+            if compare_unit1[0] == compare_unit2[0]:
+                overlap_counts += 1
+                for __, record in custom_dedup_callable(compare_unit1 + compare_unit2, identity_keep_rule).items():
+                    rule_based_output.overlap_out.write(record.format() + "\n")
             if rule_based_output.left_out:
+                for __, record in custom_dedup_callable(compare_unit1, identity_keep_rule).items():
+                    rule_based_output.left_out.write(record.format() + "\n")
                 while input1.has_next():
                     for __, record in custom_dedup_callable(next(input1), identity_keep_rule).items():
                         rule_based_output.left_out.write(record.format() + "\n")
         elif input2.has_next():
+            compare_unit2 = next(input2)
+            while compare_unit2[0] < compare_unit1[0] and input2.has_next():
+                if rule_based_output.right_out:
+                    for __, record in custom_dedup_callable(compare_unit2, identity_keep_rule).items():
+                        rule_based_output.right_out.write(record.format() + "\n")
+                compare_unit2 = next(input2)
+            if compare_unit1[0] == compare_unit2[0]:
+                overlap_counts += 1
+                for __, record in custom_dedup_callable(compare_unit1 + compare_unit2, identity_keep_rule).items():
+                    rule_based_output.overlap_out.write(record.format() + "\n")
             if rule_based_output.right_out:
+                for __, record in custom_dedup_callable(compare_unit2, identity_keep_rule).items():
+                    rule_based_output.left_out.write(record.format() + "\n")
                 while input2.has_next():
-                    for __, record in custom_dedup_callable(next(input1), identity_keep_rule).items():
+                    for __, record in custom_dedup_callable(next(input2), identity_keep_rule).items():
                         rule_based_output.right_out.write(record.format() + "\n")
 
         return overlap_counts
