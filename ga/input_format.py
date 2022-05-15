@@ -9,7 +9,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from abc import abstractmethod
-from var_record import VarRecord
+from ga.var_record import VarRecord
 
 
 class InputFormat(object):

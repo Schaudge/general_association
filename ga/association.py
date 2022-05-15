@@ -6,9 +6,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from record_creater import RecordReaderWrapper
-from parse_factory import *
-from output_factory import AssociatedRuleOutput
+from ga.record_creater import RecordReaderWrapper
+from ga.parse_factory import *
+from ga.output_factory import AssociatedRuleOutput
 
 
 def iterative_overlap_block(filename_1: str, filename_2: str, parse_callable: callable,

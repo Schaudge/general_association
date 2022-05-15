@@ -6,11 +6,20 @@
 from setuptools import setup, find_packages
 
 
-setup(name='general_association',
+
+
+
+
+
+
+
+
+setup(name='ga',
       version='0.0.1',
       description='general association for bioinformatics',
       author='Schaudge King',
+      author_email='yuanshenran@yeah.net',
       license='MIT',
-      packages=['src'],
-      entry_points={'console_scripts': ['ga = association:main',]}
+      packages=find_packages(),
+      entry_points={'console_scripts': ['ga = ga.association:main',]}
       )
